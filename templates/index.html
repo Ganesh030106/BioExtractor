@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioExtractor — AI-Powered Profile Parser</title>
+    <meta name="description" content="Extract structured JSON data from free-form text descriptions. Parse names, skills, experience, and more with intelligent pattern recognition.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <div class="logo" id="logo">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <rect x="2" y="2" width="24" height="24" rx="6" stroke="url(#logo-grad)" stroke-width="2.5"/>
+                        <path d="M8 9h12M8 14h8M8 19h10" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="logo-grad" x1="0" y1="0" x2="28" y2="28">
+                                <stop stop-color="#818cf8"/>
+                                <stop offset="1" stop-color="#c084fc"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="logo-text">BioExtractor</span>
+                <span class="logo-badge">AI</span>
+            </div>
+            <nav class="nav-tabs" id="nav-tabs">
+                <button class="nav-tab active" data-tab="extract" id="tab-extract">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <line x1="10" y1="9" x2="8" y2="9"/>
+                    </svg>
+                    Extract
+                </button>
+                <button class="nav-tab" data-tab="history" id="tab-history">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12,6 12,12 16,14"/>
+                    </svg>
+                    History
+                    <span class="history-count" id="history-count">0</span>
+                </button>
+            </nav>
+            <div class="header-actions">
+                <button class="btn-icon" id="btn-settings" title="API Settings">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+                <button class="btn-icon" id="btn-export" title="Export All Data">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Settings Drawer -->
+    <div class="settings-drawer" id="settings-drawer">
+        <div class="settings-drawer-inner">
+            <div class="settings-drawer-header">
+                <div class="settings-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span>API Credentials Settings</span>
+                </div>
+                <button class="btn-close-settings" id="btn-close-settings">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="settings-drawer-body">
+                <p class="settings-help-text">
+                    Configure your own Google Gemini API key to process intelligent profile extractions. 
+                    Your API key is securely saved in your browser's local storage, operates fully on the client-side, and is sent only in the request header.
+                </p>
+                <div class="settings-form-group">
+                    <label class="settings-label" for="gemini-api-key">Gemini API Key</label>
+                    <div class="settings-input-wrapper">
+                        <input type="password" id="gemini-api-key" placeholder="Enter your Gemini API key (AIzaSy...)" class="settings-input">
+                        <button class="settings-toggle-visibility" id="settings-toggle-visibility" type="button">👁️</button>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button class="btn btn-secondary" id="btn-clear-settings">Clear Key</button>
+                    <button class="btn btn-primary" id="btn-save-settings">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Extract Tab -->
+        <section class="tab-content active" id="content-extract">
+            <!-- Hero -->
+            <div class="hero" id="hero-section">
+                <div class="hero-badge">
+                    <span class="pulse-dot"></span>
+                    Intelligent Text Parser
+                </div>
+                <h1 class="hero-title">
+                    Transform <span class="gradient-text">Text</span> into
+                    <span class="gradient-text">Structured Data</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Paste any bio, introduction, or profile description — our AI-powered engine extracts
+                    names, skills, experience, contacts, and more into clean JSON.
+                </p>
+            </div>
+
+            <!-- Input Section -->
+            <div class="input-section" id="input-section">
+                <div class="input-card">
+                    <div class="input-card-header">
+                        <div class="input-label-group">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"/>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                            </svg>
+                            <span>Enter Text Description</span>
+                        </div>
+                        <div class="char-count" id="char-count">0 characters</div>
+                    </div>
+                    <textarea
+                        id="text-input"
+                        class="text-input"
+                        placeholder="e.g., My name is Ganesh, I worked at an IT company with 7 years of experience. I know Python, Java, React, and Docker. Currently based in Chennai as a Full Stack Developer..."
+                        rows="6"
+                    ></textarea>
+                    <div class="input-actions">
+                        <button class="btn btn-secondary" id="btn-clear-input">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            Clear
+                        </button>
+                        <button class="btn btn-primary" id="btn-extract">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/>
+                            </svg>
+                            <span id="btn-extract-text">Extract Data</span>
+                            <div class="spinner" id="spinner" style="display:none;"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Example Prompts -->
+                <div class="examples-section">
+                    <span class="examples-label">Try examples:</span>
+                    <div class="examples-chips">
+                        <button class="chip" data-example="bio">👤 Personal Bio</button>
+                        <button class="chip" data-example="developer">💻 Developer Profile</button>
+                        <button class="chip" data-example="designer">🎨 Designer Intro</button>
+                        <button class="chip" data-example="manager">📊 Project Manager</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section" id="result-section" style="display:none;">
+                <div class="result-header">
+                    <h2 class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16,18 22,12 16,6"/>
+                            <polyline points="8,6 2,12 8,18"/>
+                        </svg>
+                        Extracted Profile
+                    </h2>
+                    <div class="result-actions">
+                        <button class="btn-sm" id="btn-copy-json" title="Copy JSON">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            Copy JSON
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visual Cards -->
+                <div class="profile-grid" id="profile-grid"></div>
+
+                <!-- Raw JSON -->
+                <div class="json-output-card">
+                    <div class="json-header">
+                        <span class="json-label">
+                            <span class="json-dot"></span>
+                            extracted_profile.json
+                        </span>
+                    </div>
+                    <pre class="json-output" id="json-output"></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Tab -->
+        <section class="tab-content" id="content-history">
+            <div class="history-header">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v5h5"/>
+                        <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+                        <path d="M12 7v5l4 2"/>
+                    </svg>
+                    Extraction History
+                </h2>
+                <button class="btn btn-danger" id="btn-clear-all">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3,6 5,6 21,6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Clear All
+                </button>
+            </div>
+            <div class="history-list" id="history-list">
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                    </div>
+                    <h3>No extractions yet</h3>
+                    <p>Start by entering a text description to extract structured data.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
